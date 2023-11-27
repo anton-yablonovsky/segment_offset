@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Tuple
 from .point import Point
 from .segment import Segment
 import math
 
 
 class Polygon:
-    def __init__(self, vertices: List[Point], offset: int, segment_i: int):
+    def __init__(self, vertices: List[Point], offset: int, segment_i: int) -> None:
         self.segment_i = segment_i
         self.offset = offset
         self.vertices = vertices
@@ -46,7 +46,7 @@ class Polygon:
 
         return Point(det(d, xdiff) / div, det(d, ydiff) / div)  # x, y
 
-    def parallel_line_points(self, point1: Point, point2: Point):
+    def parallel_line_points(self, point1: Point, point2: Point) -> Tuple[Point]:
         # Check if the line is vertical
         # Calculate the slope of the initial line
         modify_offset = (
@@ -68,7 +68,7 @@ class Polygon:
         # Calculate the coordinates of the new points for the parallel line
         return Point(point1.x + dx, point1.y + dy), Point(point2.x + dx, point2.y + dy)
 
-    def segment_offset(self):
+    def segment_offset(self) -> List[Tuple]:
         projection_point1, projection_point2 = self.parallel_line_points(
             self.vertices[self.segment_i],  # x1, y1
             self.vertices[self.segment_i + 1],  # x2, y2

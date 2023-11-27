@@ -8,7 +8,7 @@ class Render:
         self.old_vertices = old_vertices
         self.new_vertices = new_vertices
 
-    def render_overlay(self):
+    def render_overlay(self) -> None:
         plt.clf()
         x_coords = [vertice[0] for vertice in self.old_vertices + self.new_vertices]
         y_coords = [vertice[1] for vertice in self.old_vertices + self.new_vertices]
@@ -21,7 +21,7 @@ class Render:
             os.mkdir("./results")
         plt.savefig("results/render_overlay.png")
 
-    def render_subplot(self):
+    def render_subplot(self) -> None:
         plt.clf()
         old_x_coords = [vertice[0] for vertice in self.old_vertices]
         old_y_coords = [vertice[1] for vertice in self.old_vertices]

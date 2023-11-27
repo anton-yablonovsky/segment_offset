@@ -3,7 +3,7 @@ class Check:
         self.old_vertices = old_vertices
         self.segment_i = segment_i
 
-    def check_points_lst(self):
+    def check_points_lst(self) -> None:
         if self.old_vertices[0] != self.old_vertices[-1]:
             raise "Polygon isn`t finished!"
 

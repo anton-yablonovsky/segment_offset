@@ -2,11 +2,11 @@ from .point import Point
 
 
 class Segment:
-    def __init__(self, start_point: Point, end_point: Point):
+    def __init__(self, start_point: Point, end_point: Point) -> None:
         self.start_point = start_point
         self.end_point = end_point
 
-    def segment_direction(self):
+    def segment_direction(self) -> int:
         if self.start_point.y < self.end_point.y:
             return 1  # AB: A(0,0)-B(2,2). Direction is from down to up.
         elif self.start_point.y > self.end_point.y:

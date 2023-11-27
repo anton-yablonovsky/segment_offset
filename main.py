@@ -12,8 +12,7 @@ for i in range(polygon_size + 1):
     point = input("Please input a point`s coordinates. Example - 1,1.\n").split(",")
     old_points.append(Point(float(point[0]), float(point[1])))
 
-old_points_as_list_of_tuple = [point.convert() for point in old_points]
-print(old_points_as_list_of_tuple)
+converted_points = [point.convert() for point in old_points]
 
 segment_i = int(
     input(
@@ -21,9 +20,9 @@ segment_i = int(
     )
 )
 offset = float(input(f"Please input offset.\n"))
-Check(old_points_as_list_of_tuple, segment_i).check_points_lst()
+Check(converted_points, segment_i).check_points_lst()
 polygon = Polygon(old_points, offset, segment_i)
 new_vert = polygon.segment_offset()
-render = Render(old_points_as_list_of_tuple, new_vert)
+render = Render(converted_points, new_vert)
 render.render_overlay()
 render.render_subplot()
