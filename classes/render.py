@@ -16,7 +16,7 @@ class Render:
         plt.xlabel("X-axis")
         plt.ylabel("Y-axis")
         plt.grid(True)
-        plt.title("Old polygon")
+        plt.title("Overlay")
         if not os.path.exists("./results"):
             os.mkdir("./results")
         plt.savefig("results/render_overlay.png")
