@@ -1,77 +1,73 @@
 from typing import List, Tuple
 from .point import Point
 from .segment import Segment
-import math
 
 
 class Polygon:
     def __init__(self, vertices: List[Point], offset: int, segment_i: int) -> None:
         self.segment_i = segment_i
-        self.offset = offset
         self.vertices = vertices
+        self.offset = offset
+        self.offset_with_direction = (
+            self.offset
+            * Segment(
+                self.vertices[segment_i], self.vertices[segment_i + 1]
+            ).segment_direction()
+        )
         self.vectors = [
             Segment(self.vertices[i], self.vertices[i + 1])
             for i in range(len(self.vertices))
             if i != len(self.vertices) - 1
         ]
-        self.segment_direction = [
-            Segment(self.vertices[i], self.vertices[i + 1]).segment_direction()
-            for i in range(len(self.vertices))
-            if i != len(self.vertices) - 1
-        ]
 
     def line_intersection(self, line1: Segment, line2: Segment) -> Point:
+        # https://stackoverflow.com/questions/20677795/how-do-i-compute-the-intersection-point-of-two-lines
         x1, y1 = line1.start_point.x, line1.start_point.y
         x2, y2 = line1.end_point.x, line1.end_point.y
         x3, y3 = line2.start_point.x, line2.start_point.y
         x4, y4 = line2.end_point.x, line2.end_point.y
-
-        xdiff, ydiff = (x1 - x2, x3 - x4), (y1 - y2, y3 - y4)
-
-        def det(a, b):
-            try:
-                return a.x * b.y - a.y * b.x
-            except:
-                return a[0] * b[1] - a[1] * b[0]
-
-        div = det(xdiff, ydiff)
-
-        if div == 0:
+        try:
+            px = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / (
+                (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+            )
+            py = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / (
+                (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+            )
+        except:
             return False
-
-        d = (
-            det(line1.start_point, line1.end_point),
-            det(line2.start_point, line2.end_point),
-        )
-
-        return Point(det(d, xdiff) / div, det(d, ydiff) / div)  # x, y
+        return Point(px, py)
 
     def parallel_line_points(self, point1: Point, point2: Point) -> Tuple[Point]:
-        # Check if the line is vertical
-        # Calculate the slope of the initial line
-        modify_offset = (
-            self.offset * self.segment_direction[self.segment_i]
-        )  # depends on direction
+        # https://www.cuemath.com/geometry/slope/
+        # m - slope, or tg of the angle between the line and ox
+        # b - line`s y-intersept.
+        # m_original == m_parallel
+        # y_original = m_original * x_original + b_original
+        # y_parallel = m_original * x_original + b_parallel
+        # b_parallel = b_original + offset_with_direction
+
         m = Segment(point1, point2).get_slope()
         if m == None:
-            return Point(point1.x + modify_offset, point1.y), Point(
-                point2.x + modify_offset, point2.y
+            return Point(point1.x + self.offset_with_direction, point1.y), Point(
+                point2.x + self.offset_with_direction, point2.y
             )
 
-        # Calculate the perpendicular slope
-        m_perpendicular = -1 / m
+        b_original = point1.y - m * point1.x
+        b_parallel = b_original + self.offset_with_direction
 
-        # Calculate the offset
-        dx = modify_offset / math.sqrt(1 + m_perpendicular ** 2)
-        dy = m_perpendicular * dx
+        y1_parallel = -5
+        y2_parallel = -10
 
-        # Calculate the coordinates of the new points for the parallel line
-        return Point(point1.x + dx, point1.y + dy), Point(point2.x + dx, point2.y + dy)
+        x1_parallel = (y1_parallel - b_parallel) / m
+        x2_parallel = (y2_parallel - b_parallel) / m
+
+        return Point(x1_parallel, y1_parallel), Point(x2_parallel, y2_parallel)
 
     def segment_offset(self) -> List[Tuple]:
+        # I think issue with icorrect polygon is here.
         projection_point1, projection_point2 = self.parallel_line_points(
-            self.vertices[self.segment_i],  # x1, y1
-            self.vertices[self.segment_i + 1],  # x2, y2
+            self.vertices[self.segment_i],  # x1, y1 parallel
+            self.vertices[self.segment_i + 1],  # x2, y2 parallel
         )
 
         parallel_line = Segment(projection_point1, projection_point2)
