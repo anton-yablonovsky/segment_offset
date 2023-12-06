@@ -1,6 +1,7 @@
 from typing import List, Tuple
 from .point import Point
 from .segment import Segment
+import math
 
 
 class Polygon:
@@ -8,7 +9,7 @@ class Polygon:
         self.segment_i = segment_i
         self.vertices = vertices
         self.offset = offset
-        self.offset_with_direction = (
+        """self.offset_with_direction = (
             self.offset
             * Segment(
                 self.vertices[segment_i], self.vertices[segment_i + 1]
@@ -18,7 +19,7 @@ class Polygon:
             Segment(self.vertices[i], self.vertices[i + 1])
             for i in range(len(self.vertices))
             if i != len(self.vertices) - 1
-        ]
+        ]"""
 
     def line_intersection(self, line1: Segment, line2: Segment) -> Point:
         # https://stackoverflow.com/questions/20677795/how-do-i-compute-the-intersection-point-of-two-lines
@@ -65,7 +66,31 @@ class Polygon:
 
     def segment_offset(self) -> List[Tuple]:
         # I think issue with icorrect polygon is here.
-        projection_point1, projection_point2 = self.parallel_line_points(
+        p1 = self.vertices[self.segment_i]
+        p2 = self.vertices[self.segment_i + 1]
+        v1 = Point(p2.x - p1.x, p2.y - p1.y)
+        v2 = Point(p1.x - p2.x, p1.y - p2.y)
+        d = ((p2.x - p1.x) ** 2 * (p2.y - p1.y) ** 2) ** 1/2
+
+        unit_vector_1 = v1 / d
+        unit_vector_2 = v2 / d
+
+        x_unit_rotate_vector_1 = unit_vector_1.x * math.cos(math.pi / 2) - unit_vector_1.y * math.sin(math.pi / 2)
+        y_unit_rotate_vector_1 = unit_vector_1.x * math.sin(math.pi / 2) + unit_vector_1.y * math.cos(math.pi / 2)
+
+        unit_rotate_vector_1 = Point(x_unit_rotate_vector_1, y_unit_rotate_vector_1)
+
+        x_unit_rotate_vector_2 = unit_vector_2.x * math.cos(-math.pi / 2) - unit_vector_2.y * math.sin(-math.pi / 2)
+        y_unit_rotate_vector_2 = unit_vector_2.x * math.sin(-math.pi / 2) + unit_vector_2.y * math.cos(-math.pi / 2)
+
+        unit_rotate_vector_2 = Point(x_unit_rotate_vector_2, y_unit_rotate_vector_2)
+
+        rotate_vector_1 = unit_rotate_vector_1 * abs(self.offset)
+        rotate_vector_2 = unit_rotate_vector_2 * abs(self.offset)
+
+        return (rotate_vector_1 + p1).convert(), (rotate_vector_2 + p2).convert()
+        
+        """projection_point1, projection_point2 = self.parallel_line_points(
             self.vertices[self.segment_i],  # x1, y1 parallel
             self.vertices[self.segment_i + 1],  # x2, y2 parallel
         )
@@ -79,4 +104,4 @@ class Polygon:
         copy_vert = self.vertices.copy()
         copy_vert[self.segment_i] = intersection_lst[0]
         copy_vert[self.segment_i + 1] = intersection_lst[1]
-        return [point.convert() for point in copy_vert]
+        return [point.convert() for point in copy_vert]"""
